@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "BroJ Extension Example",
+  "description": "This is our sample extension",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "Logo.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["https://boardgamearena.com/10/heat?table=*"]
+    }
+  ]
+}
