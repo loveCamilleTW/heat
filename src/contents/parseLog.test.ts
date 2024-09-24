@@ -18,7 +18,7 @@ function convertToDom(htmlContent: string) {
 describe("parseCard", () => {
   test("parse HEAT card", () => {
     const heatCardDom = convertToDom(heatCard);
-    expect(parseLog(heatCardDom)).toEqual({ category: Category.HEAT });
+    expect(parseCard(heatCardDom)).toEqual({ category: Category.HEAT });
   });
 });
 

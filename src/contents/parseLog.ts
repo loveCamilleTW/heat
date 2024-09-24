@@ -1,3 +1,11 @@
+export enum Category {
+  NORMAL,
+  HEAT,
+  STRESS,
+  SPONSOR,
+  UPGRADE,
+}
+
 export enum Action {
   PLAY,
   MOVE,
@@ -35,11 +43,10 @@ export function parseLog(dom: HTMLElement | null) {
     const cards: string[] = [];
     Array.from(cardDoms).forEach((cardDom) => {
       const cardSideDom = cardDom.getElementsByClassName("card-side")[0];
-      
-      if (cardSideDom.classList.contains('stress')) {
-        cards.push('stress');
-      }
-      else {
+
+      if (cardSideDom.classList.contains("stress")) {
+        cards.push("stress");
+      } else {
         const speed = cardSideDom.getAttribute("data-col");
         if (speed) cards.push(speed);
       }
@@ -74,5 +81,13 @@ export function parseLog(dom: HTMLElement | null) {
  *
  */
 export function parseCard(cardDom: HTMLElement | null) {
-  
+  if (!cardDom) return null;
+  const cardSideDom = cardDom.getElementsByClassName("card-side")[0];
+
+  if (cardSideDom.classList.contains("stress")) {
+    return { category: Category.STRESS };
+  }
+  if (cardSideDom.classList.contains("heat")) {
+    return { category: Category.HEAT };
+  }
 }
