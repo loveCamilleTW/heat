@@ -8,9 +8,11 @@ export enum Category {
 
 export enum Action {
   PLAY,
+  BOOST,
+  RETURN,
+
   MOVE,
   DROP,
-  BOOST,
   INFO,
 }
 
@@ -73,6 +75,19 @@ export function parseLog(dom: Element | null) {
 
     return {
       action: Action.BOOST,
+      player,
+      cards,
+    };
+  }
+  
+  const returnPattern = /放回牌庫頂部/;
+  if (returnPattern.test(roundedboxDom.textContent)) {
+    const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
+    const cardDoms = roundedboxDom.getElementsByClassName("log-card-image");
+    const cards = Array.from(cardDoms).map((cardDom) => parseCard(cardDom));
+
+    return {
+      action: Action.RETURN,
       player,
       cards,
     };

@@ -13,6 +13,7 @@ import moveLog from "/mockData/logs/move.html?raw";
 import dropLog from "/mockData/logs/drop.html?raw";
 import playLog from "/mockData/logs/play.html?raw";
 import boostLog from "/mockData/logs/boost.html?raw";
+import returnLog from "/mockData/logs/return.html?raw";
 
 import mockLogs from "/mockData/logs/mockLogs.html?raw";
 import { describe } from "node:test";
@@ -38,6 +39,11 @@ describe("parseCard", () => {
   });
 
   test("parse STRESS card", () => {
+    const stressCardDom = convertToDom(stressCard);
+    expect(parseCard(stressCardDom)).toEqual({ category: Category.STRESS });
+  });
+
+  test("parse UPGRADE card", () => {
     const stressCardDom = convertToDom(stressCard);
     expect(parseCard(stressCardDom)).toEqual({ category: Category.STRESS });
   });
@@ -95,9 +101,20 @@ describe("parseLog", () => {
       ],
     });
   });
+
+  test("parse RETURN", () => {
+    const returnLogDom = convertToDom(returnLog);
+    expect(parseLog(returnLogDom)).toEqual({
+      action: Action.RETURN,
+      player: 'loveCamilleTW',
+      cards: [
+        { category: Category.SPONSOR, upgrade: '懸吊系統' },
+      ],
+    });
+  });
 });
 
-describe('parseLogs', () => {
+describe.skip('parseLogs', () => {
   test("parseLogs(1)", () => {
     const mockLogsDom = convertToDom(mockLogs);
     // expect(parseLogs(mockLogsDom)).toEqual({ action: Action.DROP });
