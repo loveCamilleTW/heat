@@ -1,5 +1,5 @@
 export enum Category {
-  NORMAL,
+  SPEED,
   HEAT,
   STRESS,
   SPONSOR,
@@ -10,9 +10,22 @@ export enum Action {
   PLAY,
   MOVE,
   DROP,
+  BOOST,
+  INFO,
 }
 
-export function parseLog(dom: HTMLElement | null) {
+export function parseLogs(dom: Element | null) {
+  if (!dom?.textContent) {
+    return null;
+  }
+
+  const logDoms = dom.getElementsByClassName("log");
+  const logs = Array.from(logDoms).map((logDom) => parseLog(logDom));
+  
+  return logs;
+}
+
+export function parseLog(dom: Element | null) {
   if (!dom?.textContent) {
     return null;
   }
@@ -21,9 +34,6 @@ export function parseLog(dom: HTMLElement | null) {
   if (!roundedboxDom.textContent) {
     return null;
   }
-
-  // console.log('outerHTML\n', dom.outerHTML);
-  // console.log('textContent\n', dom.textContent);
 
   const movePattern = /將他的賽車往前移動(\d+)格/;
   if (movePattern.test(roundedboxDom.textContent)) {
@@ -38,26 +48,37 @@ export function parseLog(dom: HTMLElement | null) {
   const playPattern = /將檔位切換至 (\d+) 並打出/;
   const match = roundedboxDom.textContent.match(playPattern);
   if (match) {
+    const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
     const gear = parseInt(match[1], 10);
     const cardDoms = roundedboxDom.getElementsByClassName("log-card-image");
-    const cards: string[] = [];
-    Array.from(cardDoms).forEach((cardDom) => {
-      const cardSideDom = cardDom.getElementsByClassName("card-side")[0];
-
-      if (cardSideDom.classList.contains("stress")) {
-        cards.push("stress");
-      } else {
-        const speed = cardSideDom.getAttribute("data-col");
-        if (speed) cards.push(speed);
-      }
-    });
+    const cards = Array.from(cardDoms).map((cardDom) => parseCard(cardDom));
 
     return {
       action: Action.PLAY,
+      player,
       gear,
       cards,
     };
   }
+
+  const boostPattern = /以發動/;
+  const boostPattern2 = /符號/;
+  if (
+    boostPattern.test(roundedboxDom.textContent) &&
+    boostPattern2.test(roundedboxDom.textContent)
+  ) {
+    const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
+    const cardDoms = roundedboxDom.getElementsByClassName("log-card-image");
+    const cards = Array.from(cardDoms).map((cardDom) => parseCard(cardDom));
+
+    return {
+      action: Action.BOOST,
+      player,
+      cards,
+    };
+  }
+
+  return { action: Action.INFO };
 }
 
 /**
@@ -80,7 +101,7 @@ export function parseLog(dom: HTMLElement | null) {
  *  </div>
  *
  */
-export function parseCard(cardDom: HTMLElement | null) {
+export function parseCard(cardDom: Element | null) {
   if (!cardDom) return null;
   const cardSideDom = cardDom.getElementsByClassName("card-side")[0];
 
@@ -90,4 +111,16 @@ export function parseCard(cardDom: HTMLElement | null) {
   if (cardSideDom.classList.contains("heat")) {
     return { category: Category.HEAT };
   }
+  if (cardSideDom.classList.contains("sponsor-card")) {
+    return {
+      category: Category.SPONSOR,
+      sponsor: cardSideDom.textContent?.trim(),
+    };
+  }
+
+  const speed = Number(cardSideDom.getAttribute("data-col"));
+  return {
+    category: Category.SPEED,
+    speed,
+  };
 }
