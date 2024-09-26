@@ -10,6 +10,7 @@ export enum Action {
   PLAY,
   BOOST,
   RETURN,
+  COOL_DOWN,
 
   MOVE,
   DROP,
@@ -48,10 +49,10 @@ export function parseLog(dom: Element | null) {
   }
 
   const playPattern = /將檔位切換至 (\d+) 並打出/;
-  const match = roundedboxDom.textContent.match(playPattern);
-  if (match) {
+  const playMatch = roundedboxDom.textContent.match(playPattern);
+  if (playMatch) {
     const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
-    const gear = parseInt(match[1], 10);
+    const gear = parseInt(playMatch[1], 10);
     const cardDoms = roundedboxDom.getElementsByClassName("log-card-image");
     const cards = Array.from(cardDoms).map((cardDom) => parseCard(cardDom));
 
@@ -79,7 +80,19 @@ export function parseLog(dom: Element | null) {
       cards,
     };
   }
-  
+
+  const coolDownPattern = /冷卻熱量(\d+)/;
+  const coolDownMatch = roundedboxDom.textContent.match(coolDownPattern);
+  if (coolDownMatch) {
+    const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
+    const heat = parseInt(coolDownMatch[1], 10);
+    return {
+      action: Action.COOL_DOWN,
+      player,
+      heat,
+    };
+  }
+
   const returnPattern = /放回牌庫頂部/;
   if (returnPattern.test(roundedboxDom.textContent)) {
     const player = roundedboxDom.getElementsByTagName("span")[0].innerHTML;
@@ -125,6 +138,12 @@ export function parseCard(cardDom: Element | null) {
   }
   if (cardSideDom.classList.contains("heat")) {
     return { category: Category.HEAT };
+  }
+  if (cardSideDom.classList.contains("upgrade-card")) {
+    return {
+      category: Category.UPGRADE,
+      upgrade: cardSideDom.textContent?.trim(),
+    };
   }
   if (cardSideDom.classList.contains("sponsor-card")) {
     return {

@@ -6,6 +6,7 @@ import { Category, Action, parseCard, parseLog, parseLogs } from "./parseLog";
 import speedCard from "/mockData/cards/speed.html?raw";
 import heatCard from "/mockData/cards/heat.html?raw";
 import stressCard from "/mockData/cards/stress.html?raw";
+import upgradeCard from "/mockData/cards/upgrade.html?raw";
 import sponsorCard from "/mockData/cards/sponsor.html?raw";
 import sponsorCard2 from "/mockData/cards/sponsor2.html?raw";
 
@@ -14,6 +15,7 @@ import dropLog from "/mockData/logs/drop.html?raw";
 import playLog from "/mockData/logs/play.html?raw";
 import boostLog from "/mockData/logs/boost.html?raw";
 import returnLog from "/mockData/logs/return.html?raw";
+import coolDownLog from "/mockData/logs/coolDown.html?raw";
 
 import mockLogs from "/mockData/logs/mockLogs.html?raw";
 import { describe } from "node:test";
@@ -63,6 +65,14 @@ describe("parseCard", () => {
       sponsor: "Lord&Co. T.B.",
     });
   });
+
+  test("parse UPGRADE card", () => {
+    const upgradeCardDom = convertToDom(upgradeCard);
+    expect(parseCard(upgradeCardDom)).toEqual({
+      category: Category.UPGRADE,
+      upgrade: "輪胎",
+    });
+  });
 });
 
 describe("parseLog", () => {
@@ -90,6 +100,15 @@ describe("parseLog", () => {
       ],
     });
   });
+  
+  test("parse COOL_DOWN", () => {
+    const coolDownLogDom = convertToDom(coolDownLog);
+    expect(parseLog(coolDownLogDom)).toEqual({
+      action: Action.COOL_DOWN,
+      player: 'loveCamilleTW',
+      heat: 1,
+    });
+  });
 
   test("parse BOOST", () => {
     const boostLogDom = convertToDom(boostLog);
@@ -108,7 +127,7 @@ describe("parseLog", () => {
       action: Action.RETURN,
       player: 'loveCamilleTW',
       cards: [
-        { category: Category.SPONSOR, upgrade: '懸吊系統' },
+        { category: Category.UPGRADE, upgrade: '懸吊系統' },
       ],
     });
   });
